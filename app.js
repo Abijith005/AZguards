@@ -12,5 +12,5 @@ app.use(morgan('dev'))
 app.use(helmet())
 
 app.listen(port,()=>{
-    console.log(`server running on port ${port}`);
+    console.log(`server runninon port ${port}`);
 })
