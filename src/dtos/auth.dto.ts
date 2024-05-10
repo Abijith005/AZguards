@@ -1,4 +1,4 @@
-export interface TokenPaylaodDto{
+export interface tokenPaylaodDto{
     id:string
     email:string,
     

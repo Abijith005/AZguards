@@ -16,7 +16,7 @@ app.use(morgan('dev'))
 app.use(helmet())
  
 app.use('/api/v1/auth',userAuthRouter) 
-app.use('/api/v1/todos',authMiddleware,todosRouter)
+app.use('/api/v1/tasks',todosRouter)
 
 app.listen(port,()=>{ 
     console.log(`server runninon port ${port}`);
