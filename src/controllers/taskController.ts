@@ -4,10 +4,19 @@ import jwtDecode from "../helpers/jwtDecode";
 import csv from "csv-parser";
 import fs from "fs";
 import path from "path";
+import { todoInputValidation } from "../helpers/inputValidation";
+import mongoose from "mongoose";
+import { StatusEnum } from "../dtos/todo.dto";
 
 export const addTodo = async (req: Request, res: Response) => {
   try {
     const { description, status } = req.body;
+    let validator = todoInputValidation({ description, status });
+    if (!validator.valid) {
+      return res
+        .status(400)
+        .json({ success: false, message: validator.message });
+    }
 
     const token: string = req.headers.authorization?.split(" ")[1]!;
     const decode = jwtDecode(token);
@@ -48,6 +57,11 @@ export const getAllTodos = async (req: Request, res: Response) => {
 export const getOneTodo = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid id parameter" });
+    }
     const todo = await todoModel.findOne({ _id: id });
     res.status(200).json({ success: true, todo: todo });
   } catch (error: any) {
@@ -60,7 +74,18 @@ export const getOneTodo = async (req: Request, res: Response) => {
 export const updateTodo = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid id parameter" });
+    }
     const { description, status } = req.body;
+    let validator = todoInputValidation({ description, status });
+    if (!validator.valid) {
+      return res
+        .status(400)
+        .json({ success: false, message: validator.message });
+    }
     const updateObject: any = {};
     if (description) {
       updateObject.description = description;
@@ -89,6 +114,12 @@ export const updateTodo = async (req: Request, res: Response) => {
 export const deleteTodo = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid id parameter" });
+    }
     const result = await todoModel.findByIdAndDelete({ _id: id });
     if (!result) {
       return res.status(404).json({ success: true, message: "Todo not found" });
@@ -145,7 +176,7 @@ export const downloadTodoList = async (req: Request, res: Response) => {
     }
     const { id } = decode;
     const todos = await todoModel
-      .find({  }, { _id: 0, description: 1, status: 1 })
+      .find({}, { _id: 0, description: 1, status: 1 })
       .lean();
 
     let csvData = `Description,Status\n`;
@@ -182,7 +213,7 @@ export const downloadTodoList = async (req: Request, res: Response) => {
 export const filterTodos = async (req: Request, res: Response) => {
   try {
     const { status } = req.query;
-
+   
     const todos = await todoModel.find({ status: status }).lean();
     res.status(200).json({ success: true, todos: todos });
   } catch (error: any) {
