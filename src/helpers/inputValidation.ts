@@ -15,7 +15,7 @@ export function todoInputValidation(data: todoDto): validatorDto {
         : "Status should be pending,in-progess or completed";
       return { valid: false, message: message };
     }
-    return {valid:true};
+    return { valid: true };
   } catch (error) {
     console.log(error);
     throw new Error("validation error");
@@ -27,4 +27,19 @@ const isEmpty = (data: string) => {
     return true;
   }
   return false;
+};
+
+export const validateStatus = (status: string): validatorDto => {
+  try {
+    if (!statusEnum.includes(status)) {
+      return {
+        valid: false,
+        message: "Status should be pending,in-progess or completed",
+      };
+    }
+    return { valid: true };
+  } catch (error) {
+    console.log(error);
+    throw new Error("validation error");
+  }
 };

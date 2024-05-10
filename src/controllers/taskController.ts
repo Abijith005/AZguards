@@ -4,7 +4,10 @@ import jwtDecode from "../helpers/jwtDecode";
 import csv from "csv-parser";
 import fs from "fs";
 import path from "path";
-import { todoInputValidation } from "../helpers/inputValidation";
+import {
+  todoInputValidation,
+  validateStatus,
+} from "../helpers/inputValidation";
 import mongoose from "mongoose";
 import { StatusEnum } from "../dtos/todo.dto";
 
@@ -212,8 +215,8 @@ export const downloadTodoList = async (req: Request, res: Response) => {
 
 export const filterTodos = async (req: Request, res: Response) => {
   try {
-    const { status } = req.query;
-   
+    const { status } = req.query ;
+    const validator = validateStatus(status as string);
     const todos = await todoModel.find({ status: status }).lean();
     res.status(200).json({ success: true, todos: todos });
   } catch (error: any) {
