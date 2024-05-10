@@ -217,6 +217,11 @@ export const filterTodos = async (req: Request, res: Response) => {
   try {
     const { status } = req.query ;
     const validator = validateStatus(status as string);
+    if (!validator.valid) {
+      return res
+        .status(400)
+        .json({ success: false, message: validator.message });
+    }
     const todos = await todoModel.find({ status: status }).lean();
     res.status(200).json({ success: true, todos: todos });
   } catch (error: any) {
