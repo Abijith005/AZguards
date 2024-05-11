@@ -2,11 +2,18 @@ import { Request, Response } from "express";
 import userModel from "../models/userModel";
 import bcrypt from "bcrypt";
 import { createAccessToken } from "../helpers/jwtSign";
+import { validateCredentials } from "../helpers/inputValidation";
 export const userRegister = async (req: Request, res: Response) => {
   try {
     const { name, email, password } = req.body;
+    const validator = validateCredentials(req.body, true);
+
+    if (!validator.valid) {
+      return res
+        .status(400)
+        .json({ success: false, message: validator.message });
+    }
     const user = await userModel.findOne({ email: email });
-    console.log(user);
 
     if (user) {
       return res
@@ -30,6 +37,13 @@ export const userRegister = async (req: Request, res: Response) => {
 export const userLogin = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
+    const validator = validateCredentials(req.body, false);
+
+    if (!validator.valid) {
+      return res
+        .status(400)
+        .json({ success: false, message: validator.message });
+    }
     const user = await userModel.findOne({ email: email });
     if (user) {
       const verifyPassword = await bcrypt.compare(password, user.password);
